@@ -1,8 +1,8 @@
 package com.edu.restwebapp;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.web.server.ConfigurableWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -12,11 +12,24 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.LinkedList;
 import java.util.Properties;
 
 @Configuration
+@PropertySources({
+        @PropertySource("classpath:application.properties"),
+        @PropertySource("classpath:foo.properties")
+})
 @ComponentScan(basePackages = "com.edu.restwebapp.controllers")
-public class WebConfig {
+public class WebConfig implements WebServerFactoryCustomizer<ConfigurableWebServerFactory> {
+    private final Environment appEnv;
+
+    public WebConfig(Environment appEnv) {
+        this.appEnv = appEnv;
+        System.out.println("app.foo: " + appEnv.getRequiredProperty("app.foo"));
+        LinkedList linkedList = new LinkedList();
+    }
+
     @Bean
     public DataSource dataSource(Environment env) {
         DriverManagerDataSource dtsource = new DriverManagerDataSource();
@@ -61,5 +74,10 @@ public class WebConfig {
     @Bean
     PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
+    }
+
+    @Override
+    public void customize(ConfigurableWebServerFactory factory) {
+        factory.setPort(Integer.parseInt(appEnv.getRequiredProperty("app.port")));
     }
 }

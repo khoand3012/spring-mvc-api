@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 public class PublisherController {
@@ -27,7 +26,7 @@ public class PublisherController {
         return bookPublisherRepository.save(bookPublisher);
     }
     @GetMapping("/publisher")
-    public Page<BookPublisher> getBookPublisherByName(@RequestParam String name, Pageable pageable) {
-        return bookPublisherRepository.getBookPublisherByName(name);
+    public Page<BookPublisher> getBookPublisherByName(Pageable pageable, @RequestParam String name, @RequestParam(required = false) String country) {
+        return bookPublisherRepository.getBookPublisherByName(pageable, name, country);
     }
 }
